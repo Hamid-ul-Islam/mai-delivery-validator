@@ -26,6 +26,11 @@ export default function App() {
     }
   };
 
+  const isValidEmail = (email) => {
+    // Basic email validation regex
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
 
@@ -33,9 +38,20 @@ export default function App() {
       header: false,
       skipEmptyLines: true,
       complete: function (results) {
-        const extractedEmails = results.data
+        // Extract data and detect if first row is header
+        const data = results.data;
+        let startIndex = 0;
+
+        // Check if the first row might be a header
+        if (!isValidEmail(data[0][0])) {
+          startIndex = 1; // Skip the first row if it's not a valid email
+        }
+
+        const extractedEmails = data
+          .slice(startIndex)
           .map((row) => row[0])
-          .filter((email) => email);
+          .filter((email) => email && isValidEmail(email));
+
         setEmails(extractedEmails);
         setEmailStatuses({}); // Clear previous statuses
         setIsChecking(false); // Reset checking status
