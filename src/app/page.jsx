@@ -1,12 +1,14 @@
 "use client";
 import React, { useState } from "react";
 import Papa from "papaparse";
+import Alert from "@reach/alert";
 
 export default function App() {
   const [emails, setEmails] = useState([]);
   const [emailStatuses, setEmailStatuses] = useState({});
   const [isChecking, setIsChecking] = useState(false);
   const [checked, setChecked] = useState(false);
+  const [error, seterror] = useState("");
 
   const checkDeliverability = async (email) => {
     try {
@@ -32,6 +34,7 @@ export default function App() {
   };
 
   const handleFileUpload = (event) => {
+    seterror("");
     const file = event.target.files[0];
 
     Papa.parse(file, {
@@ -63,6 +66,10 @@ export default function App() {
   };
 
   const handleCheckAllEmails = () => {
+    if (!emails.length) {
+      seterror("Please upload a CSV file first.");
+      return;
+    }
     setIsChecking(true); // Set checking state to true
     const newStatuses = {};
     emails.forEach(async (email) => {
@@ -119,6 +126,8 @@ export default function App() {
           className="mb-4 p-2 w-full border rounded bg-gray-50 text-gray-600"
           placeholder="Upload CSV file"
         />
+
+        {error && <p className="text-red-500 bg-red-100 p-3 mb-4">{error}</p>}
         <button
           onClick={handleCheckAllEmails}
           className="w-full mb-4 p-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded"
